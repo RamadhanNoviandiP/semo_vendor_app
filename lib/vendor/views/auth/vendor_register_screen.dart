@@ -30,14 +30,17 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
   selectGalleryImage() async {
     Uint8List? im = await _vendorController.pickStoreImage(ImageSource.gallery);
 
-    if (im != null) {
-      setState(() {
-        _image = im;
-      });
-    } else {
-      // Handle the case where no image is selected
-      print('No Image Selected');
-    }
+    setState(() {
+      _image = im;
+    });
+  }
+
+  selectGalleryCamera() async {
+    Uint8List? im = await _vendorController.pickStoreImage(ImageSource.camera);
+
+    setState(() {
+      _image = im;
+    });
   }
 
   String? _taxStatus;
@@ -49,23 +52,11 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
 
   _saveVendorDetail() async {
     if (_formKey.currentState!.validate()) {
-      if (_taxStatus != null && _image != null) {
-        await _vendorController.registerVendor(
-          namaToko,
-          email,
-          phoneNumber,
-          countryValue,
-          stateValue,
-          cityValue,
-          _taxStatus!,
-          nomorNPWP,
-          _image,
-        );
-      } else {
-        print('Please select tax status and add an image.');
-      }
+      await _vendorController.registerVendor(namaToko, email, phoneNumber,
+          countryValue, stateValue, cityValue, _taxStatus!, nomorNPWP, _image);
+      print('berhasil');
     } else {
-      print('Please fill in all required fields.');
+      print('anjay error');
     }
   }
 
@@ -204,27 +195,23 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                           ),
                           Flexible(
                             child: Container(
-                                width: 200,
-                                child: DropdownButtonFormField(
-                                  hint: Text('Pilih status pajak'),
-                                  value: _taxStatus ??
-                                      _taxOption[
-                                          0], // Set a default value when _taxStatus is null
-                                  items:
-                                      _taxOption.map<DropdownMenuItem<String>>(
+                              width: 200,
+                              child: DropdownButtonFormField(
+                                hint: Text('ya/tidak'),
+                                items: _taxOption.map<DropdownMenuItem<String>>(
                                     (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    },
-                                  ).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _taxStatus = value;
-                                    });
-                                  },
-                                )),
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _taxStatus = value;
+                                  });
+                                },
+                              ),
+                            ),
                           ),
                         ],
                       ),

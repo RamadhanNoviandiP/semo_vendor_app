@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class VendorController {
@@ -26,7 +25,7 @@ class VendorController {
 //Fungsi untuk menyimpan image ke firebase end
 
 //Fungsi unuk mengambil store image
-  Future<Uint8List?> pickStoreImage(ImageSource source) async {
+  pickStoreImage(ImageSource source) async {
     final ImagePicker _imagePicker = ImagePicker();
 
     XFile? _file = await _imagePicker.pickImage(source: source);
@@ -35,7 +34,8 @@ class VendorController {
       return await _file.readAsBytes();
     } else {
       print('No Image Selected');
-      return null; // Return null when no image is selected
+      // Return an empty Uint8List instead of null
+      return Uint8List(0);
     }
   }
 
@@ -58,7 +58,6 @@ class VendorController {
       String storeImage = await _uploadVendorImageToStorage(image);
 
       //menyimpan data ke cloud storage
-
       await _firestore.collection('vendors').doc(_auth.currentUser!.uid).set({
         'NamaToko': namaToko,
         'Email': email,
@@ -68,11 +67,14 @@ class VendorController {
         'cityValue': cityValue,
         'taxRegistered': taxRegistered,
         'nomorNPWP': nomorNPWP,
-        'storeImage': image != null,
+        'storeImage': storeImage, // Store the URL of the uploaded image
         'approve': false,
       });
+      res = 'success'; // Set 'success' if the data is saved successfully
     } catch (e) {
-      res = e.toString();
+      res =
+          'Error saving data to Firestore: $e'; // Store the specific error message
+      print(res); // Print the error message for debugging
     }
     return res;
   }
